@@ -10,13 +10,16 @@
   },
   "dependencies": {
     "@babel/preset-env": "^7.1.6",
+    "@react-native-clipboard/clipboard": "^1.11.2",
     "expo": "~49.0.7",
+    "expo-camera": "~13.4.2",
     "expo-image-picker": "^14.3.2",
     "expo-permissions": "^14.2.1",
     "expo-status-bar": "~1.6.0",
     "firebase": "^10.1.0",
     "react": "18.2.0",
-    "react-native": "0.72.3"
+    "react-native": "0.72.3",
+    "react-native-clipboard": "^0.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

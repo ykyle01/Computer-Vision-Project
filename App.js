@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -11,11 +11,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Constants from 'expo';
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import uuid from 'uuid';
-import Environment from "./config/environment";
 import firebaseConfig from "./utils/firebase";
 import { initializeApp } from 'firebase/app';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -29,11 +27,16 @@ export default class App extends React.Component {
   state = {
     image: null,
     uploading: false,
+    startCamera: false,
   };
 
-  async componentDidMount() {
-    await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
-    await Permissions.askAsync(Permissions.CAMERA);
+  async _startCamera() {
+    const {status} = await Camera.requestPermissionsAsync()
+    if (status === 'granted') {
+      this.startCamera = true;
+    } else {
+      Alert.alert('Access denied');
+    }
   }
 
   render() {
@@ -104,6 +107,7 @@ export default class App extends React.Component {
           style={{
             borderTopRightRadius: 3,
             borderTopLeftRadius: 3,
+            backgroundColor: '#EDAE49',
             shadowColor: 'rgba(0,0,0,1)',
             shadowOpacity: 0.2,
             shadowOffset: { width: 4, height: 4 },
@@ -159,7 +163,7 @@ export default class App extends React.Component {
       this.setState({ uploading: true });
 
       if (!pickerResult.canceled) {
-        uploadUrl = await uploadImageAsync(pickerResult.uri);
+        uploadUrl = await uploadImageAsync(pickerResult.assets[0].uri);
         this.setState({ image: uploadUrl });
       }
     } catch (e) {
@@ -190,10 +194,10 @@ async function uploadImageAsync(uri) {
 
   // Initialize Cloud Storage and get a reference to the service
   const storage = getStorage(app);
-  // Create a storage reference from our storage service
 
+  // Create a storage reference from our storage service
   let imageName = uuid.v4()
-  const storageRef = ref(storage, imageName);
+  const storageRef = ref(storage, 'images/' + imageName);
 
   // 'file' comes from the Blob or File API
   await uploadBytes(storageRef, blob);
@@ -202,5 +206,5 @@ async function uploadImageAsync(uri) {
   blob.close();
 
   // Get the download URL
-  return await getDownloadURL(ref(storage, imageName));
+  return await getDownloadURL(ref(storage, 'images/' + imageName));
 }
