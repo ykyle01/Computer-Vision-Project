@@ -31,7 +31,7 @@ export default class App extends React.Component {
   async _startCamera() {
     const {status} = await Camera.requestPermissionsAsync()
     if (status === 'granted') {
-      this.startCamera = true;
+      this.setState({ startCamera: true });
     } else {
       Alert.alert('Access denied');
     }
@@ -92,6 +92,23 @@ export default class App extends React.Component {
     if (!image) {
       return;
     }
+
+    fetch('https://api.openvisionapi.com/api/v1/detection', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data; boundary=---BOUNDARY',
+      },
+      body: JSON.stringify({
+
+      }),
+    }).then(response => response.json())
+    .then(json => {
+      return json.movies;
+    })
+    .catch(error => {
+      console.error(error);
+    });
 
     return (
       <View
